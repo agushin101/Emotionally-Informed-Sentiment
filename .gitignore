@@ -1,0 +1,10 @@
+#Mac Files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+#Python compilation
+__pycache__/
+
+#Ignore datasets
+*.csv
