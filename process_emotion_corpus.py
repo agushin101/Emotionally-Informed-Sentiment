@@ -9,6 +9,13 @@ def dict_add(dictionary, key, value):
     else:
         dictionary[key] += value
 
+def z_normalize(dictionary, mu, sigma):
+    for key in dictionary:
+        x = dictionary[key]
+        x -= mu
+        z = x / sigma
+        dictionary[key] = z
+
 def main():
     if not os.path.isfile("emotion-corpus/emotion-phrases.csv"):
         df1 = pd.read_csv("emotion-corpus/test.csv")
@@ -35,9 +42,16 @@ def main():
         tokens = nlp(phrase)
         for token in tokens:
             if not token.is_stop:
-                dict_add(wordmap, token, score)
-    print(wordmap)
-                
+                dict_add(wordmap, str(token), score)
+
+    vals = list(wordmap.values())
+    mean = np.mean(vals)
+    stdev = np.std(vals)
+    z_normalize(wordmap, mean, stdev)
+
+    outdf = pd.DataFrame.from_dict(wordmap, orient='index', columns=['score'])
+    outdf.to_csv('emotion-corpus/corpus.csv')
+    
         
 if __name__ == "__main__":
     main()
