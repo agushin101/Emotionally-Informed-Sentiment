@@ -49,8 +49,8 @@ def main():
     stdev = np.std(vals)
     z_normalize(wordmap, mean, stdev)
 
-    outdf = pd.DataFrame.from_dict(wordmap, orient='index', columns=['score'])
-    outdf.to_csv('emotion-corpus/corpus.csv')
+    outdf = pd.DataFrame(data={'token': wordmap.keys(), 'score': wordmap.values()},)
+    outdf.to_csv('emotion-corpus/corpus.csv', index=False)
     
         
 if __name__ == "__main__":
