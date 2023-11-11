@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import Dataset
 import sys
 from torch.utils.data import DataLoader
-import spacy
+import numpy as np
 
 class TextData(Dataset):
     def __init__(self, x, y):
@@ -38,14 +38,17 @@ def main():
         print("Dataset must be one of emotion or sentiment.")
         exit(1)
 
+    ##Modify data first!
+    ##Then pass after that
+    emotion_corpus = pd.read_csv("emotion-corpus/corpus.csv")
+
     traindata = TextData(xTrain, yTrain)
     testdata = TextData(xTest, yTest)
 
     trainloader = DataLoader(traindata, batch_size=32)
     testloader = DataLoader(testdata, batch_size=32)
 
-    emotion_corpus = pd.read_csv("emotion-corpus/corpus.csv")
-    print(emotion_corpus)
+    
 
 if __name__ == "__main__":
     main()
