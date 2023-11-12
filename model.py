@@ -11,8 +11,10 @@ class TextData(Dataset):
         self.mapping = mapping
         self.max_len = 25
         self.padding_indx = -1
+
     def __len__(self):
         return len(self.y)
+    
     def __getitem__(self, index):
         raw_text = self.x.iloc[index]['text']
         label = self.y.iloc[index]['target']
@@ -59,12 +61,11 @@ def main():
         print("Dataset must be one of emotion or sentiment.")
         exit(1)
 
-    ##Modify data first!
-    ##Then pass after that
     vocabulary = build_vocab(xTrain)
     vocab_map = get_word_mapping(vocabulary)
     emotion_corpus = pd.read_csv("emotion-corpus/corpus.csv")
 
+    ####Remember, padding index is -1.
     traindata = TextData(xTrain, yTrain, vocab_map)
     testdata = TextData(xTest, yTest, vocab_map)
 
