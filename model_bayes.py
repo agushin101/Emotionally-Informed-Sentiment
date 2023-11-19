@@ -34,7 +34,6 @@ def select_k(dataframe, map_function, inverse, k):
             scores = list()
             for word in text.split():
                 val = map_function.get(word)
-                
                 if val is not None:
                     scores.append(val)
                 sort = sorted(scores)
@@ -52,7 +51,7 @@ def build_mappings(corpus):
     result = dict()
     inverse = dict()
     for i, word in enumerate(corpus['token']):
-        score = corpus.iloc[i]['score']
+        score = abs(corpus.iloc[i]['score'])
         result[word] = score
         inverse[score] = word
     return result, inverse
@@ -72,12 +71,11 @@ def main():
 
     emotion_corpus = pd.read_csv("emotion-corpus/corpus.csv")
     map_func, inverse = build_mappings(emotion_corpus)
-    xTrain_k = select_k(xTrain, map_func, inverse, k)
     xTest_k = select_k(xTest, map_func, inverse, k)
 
     vocab = build_vocab(emotion_corpus['token'])
     vectorizor = CountVectorizer(input='content', decode_error='ignore', vocabulary=vocab)
-    train = vectorizor.fit_transform(xTrain_k)
+    train = vectorizor.fit_transform(xTrain['text'])
     test = vectorizor.transform(xTest_k)
     model = MultinomialNB()
     model.fit(train, yTrain)
