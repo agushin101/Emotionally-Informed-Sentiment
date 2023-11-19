@@ -58,7 +58,7 @@ def build_mappings(corpus):
     return result, inverse
 
 def main():
-    dataset = sys.argv[1] if sys.argv[1] is not None else "emotion"
+    dataset = sys.argv[1]
     k = int(sys.argv[2])
     if dataset == "emotion":
         xTrain, xTest, yTrain, yTest = load_emotion()
