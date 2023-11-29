@@ -18,10 +18,9 @@ def z_normalize(dictionary, mu, sigma):
 
 def main():
     if not os.path.isfile("emotion-corpus/emotion-phrases.csv"):
-        df1 = pd.read_csv("emotion-corpus/test.csv")
         df2 = pd.read_csv("emotion-corpus/training.csv")
         df3 = pd.read_csv("emotion-corpus/validation.csv")
-        pd.concat([df1, df2, df3]).to_csv("emotion-corpus/emotion-phrases.csv", index=False)
+        pd.concat([df2, df3]).to_csv("emotion-corpus/emotion-phrases.csv", index=False)
 
     wordmap = dict()
 

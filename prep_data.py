@@ -2,9 +2,11 @@ import pandas as pd
 
 def prep_emotion():
     train = "emotion-corpus/training.csv"
+    train2 = "emotion-corpus/validation.csv"
     test = "emotion-corpus/test.csv"
 
     loadTrain = pd.read_csv(train)
+    loadTrain2 = pd.read_csv(train2)
     loadTest = pd.read_csv(test)
 
     binary_targets_train = []
@@ -13,6 +15,17 @@ def prep_emotion():
     text_test = []
 
     for _, sample in loadTrain.iterrows():
+        target = sample['label']
+        text = sample['text']
+        if target == 0 or target == 3:
+            binary_targets_train.append(0)
+            text_train.append(text)
+        elif target == 1 or target == 2:
+            binary_targets_train.append(1)
+            text_train.append(text)
+        else:
+            continue
+    for _, sample in loadTrain2.iterrows():
         target = sample['label']
         text = sample['text']
         if target == 0 or target == 3:
@@ -41,12 +54,8 @@ def prep_emotion():
     pd.Series(text_test, name='text').to_csv(out + "xTest.csv", index=False)
     pd.Series(text_train, name='text').to_csv(out + "xTrain.csv", index=False)
 
-def prep_sentiment():
-    return None
-
 def main():
     prep_emotion()
-    prep_sentiment()
 
 if __name__ == "__main__":
     main()
