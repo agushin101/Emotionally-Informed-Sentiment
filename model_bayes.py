@@ -31,7 +31,7 @@ def select_k(dataframe, map_function, inverse, k):
             for i, score in enumerate(sort):
                 appender = inverse.get(score)
                 string += appender
-                if i >= k:
+                if (i + 1) >= k:
                     break
                 else:
                     string += " "
@@ -55,11 +55,11 @@ def select_k_random(dataframe, k):
             result.append(text)
         else:
             string = ""
-            selects = np.random.choice(len(splits), k, replace=False).tolist()
+            selects = np.random.choice(len(splits), k).tolist()
             choices = [splits[i] for i in selects]
             for i, word in enumerate(choices):
                 string += word
-                if i < k:
+                if (i + 1) < k:
                     string += " "
             result.append(string)
     return result
@@ -74,8 +74,7 @@ def build_mappings(corpus):
     return result, inverse
 
 
-def main():
-    k = int(sys.argv[1])
+def main(k):
     xTrain, xTest, yTrain, yTest = load_emotion()
     yTrain = yTrain['target']
     yTest = yTest['target']
@@ -92,29 +91,72 @@ def main():
     model = MultinomialNB()
     model.fit(train, yTrain)
 
-    y_hat_train = model.predict(train)
     y_hat_test = model.predict(test)
 
     f_test = f1_score(yTest, y_hat_test)
-    f_train = f1_score(yTrain, y_hat_train)
     acc_test = accuracy_score(yTest, y_hat_test)
-    acc_train = accuracy_score(yTrain, y_hat_train)
-
-    print("The Accuracy Score on the training data is: " + str(acc_train))
-    print("The F1 Score on the training data is: " + str(f_train))
-    print("The Accuracy Score on the testing data is: " + str(acc_test))
-    print("The F1 Score on the testing data is: " + str(f_test))
 
     ###Now, handle the random selects
-    xTest_rand = select_k_random(xTest, k)
-    testRand = vectorizor.transform(xTest_rand)
+    xTrain_rand = select_k_random(xTrain, k)
+    train_rand = vectorizor.fit_transform(xTrain_rand)
+    test_rand = vectorizor.transform(xTest['text'])
 
-    y_hat_rand = model.predict(testRand)
+    model_rand = MultinomialNB()
+    model_rand.fit(train_rand, yTrain)
+    y_hat_rand = model_rand.predict(test_rand)
     f_rand = f1_score(yTest, y_hat_rand)
     acc_rand = accuracy_score(yTest, y_hat_rand)
 
-    print("The Accuracy Score on the randomized testing data is: " + str(acc_rand))
-    print("The F1 Score on the randomized testing data is: " + str(f_rand))
+    model_complete = MultinomialNB()
+    xTrain = vectorizor.fit_transform(xTrain['text'])
+    xTest = vectorizor.transform(xTest['text'])
+    model_complete.fit(xTrain, yTrain)
+    y_hat_complete = model_complete.predict(xTest)
+    f_complete = f1_score(yTest, y_hat_complete)
+    acc_complete = accuracy_score(yTest, y_hat_complete)
 
+    return f_test, f_rand, f_complete, acc_test, acc_rand, acc_complete
+
+import matplotlib.pyplot as plt
 if __name__ == "__main__":
-    main()
+    k = list()
+
+    random_f = list()
+    random_a = list()
+    emotion_f = list()
+    emotion_a = list()
+
+    complete_a = 0
+    complete_f = 0
+
+    for i in range(1, 31):
+        f_test, f_rand, f_complete, acc_test, acc_rand, acc_complete = main(i)
+        complete_a = acc_complete
+        complete_f = f_complete
+        k.append(i)
+
+        random_f.append(f_rand)
+        random_a.append(acc_rand)
+
+        emotion_f.append(f_test)
+        emotion_a.append(acc_test)
+
+    plt.plot(k, random_a, "b")
+    plt.plot(k, emotion_a, "r")
+    plt.xlabel("K")
+    plt.ylabel("Accuracy Score")
+    plt.title("Accuracy Score vs. K")
+    plt.axhline(y=acc_complete, color='g', linestyle='-')
+    plt.legend(["Random Scores", "Emotion Scores", "Baseline"], loc="lower right")
+    plt.show()
+
+    plt.plot(k, f_rand, "b")
+    plt.plot(k, f_test, "r")
+    plt.xlabel("K")
+    plt.ylabel("F-1 Score")
+    plt.title("Accuracy Score vs. K")
+    plt.axhline(y=f_complete, color='g', linestyle='-')
+    plt.legend(["Random Scores", "Emotion Scores", "Baseline"], loc="lower right")
+    plt.show()
+
+    
