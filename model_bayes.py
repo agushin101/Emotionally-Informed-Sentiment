@@ -85,7 +85,6 @@ def main():
     emotion_corpus = pd.read_csv("emotion-corpus/corpus.csv")
     map_func, inverse = build_mappings(emotion_corpus)
     xTrain_k = select_k(xTrain, map_func, inverse, k)
-    xTest_k = select_k(xTest, map_func, inverse, k)
 
     vectorizor = CountVectorizer(input='content', decode_error='ignore')
     train = vectorizor.fit_transform(xTrain_k)
